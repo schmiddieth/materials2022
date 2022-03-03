@@ -1,0 +1,29 @@
+---
+title: "Week1"
+author: "Dimitri Schmid"
+date: "3/3/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, intall bioconductor}
+install.packages(c("gsl","ggplot2"))
+# If you haven't install Bioconductor yet:
+# install.packages("BiocManager")
+# BiocManager::install()
+
+BiocManager::install(c("GenomicRanges", "rtracklayer", "EnrichedHeatmap", "AnnotationHub", 
+                       "ensembldb", "edgeR", "esATAC", "sechm","genomation","Rsubread","Rfastp"))
+BiocManager::install("ETHZ-INS/epiwraps")
+```
+
+```{r, first assignment}
+library(epiwraps)
+```
+
+```{r, print the sessioninfo}
+sessionInfo()
+```
