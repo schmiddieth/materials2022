@@ -1,0 +1,87 @@
+---
+title: "assignment_ds_w6_final"
+output: html_document
+date: '2022-04-20'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# downloading the packages
+
+```{r}
+suppressPackageStartupMessages({
+  library(GenomicRanges)
+  library(memes)
+  library(Biostrings)
+  library(AnnotationHub)
+  library(MotifDb)
+  library(universalmotif)
+  library(PWMEnrich)
+  library(ggplot2)
+})
+```
+
+```{r}
+#download the gata1 peaks file
+download.file("https://www.encodeproject.org/files/ENCFF024CYR/@@download/ENCFF024CYR.bed.gz", "GATA1_ENCFF024CYR.bed.gz")
+peaks <- rtracklayer::import("GATA1_ENCFF024CYR.bed.gz", format="NarrowPeak")
+seqlevelsStyle(peaks) <- "Ensembl"
+
+```
+
+```{r}
+peak_centers <- resize(peaks, fix="center", width=100)
+# we get the genome sequence:
+ah <- AnnotationHub(localHub=FALSE)
+genome <- ah[["AH68356"]]
+# we get the sequences corresponding to the peak centers:
+peak_seqs <- memes::get_sequence(peak_centers, genome)
+peak_seqs
+```
+
+
+## Getting the desired motif
+
+```{r}
+# we search for "CTCF" in the motif database
+motifs <- query(MotifDb, "GATA1")
+# there are several matching motifs:
+names(motifs)
+# we select one:
+motif <- motifs[["Mmusculus-HOCOMOCOv10-GATA1_MOUSE.H10MO.A"]]
+# we visualize it:
+view_motifs(motif)
+```
+
+## Scanning a set of sequences using the Meme suite
+
+```{r}
+moi <- memes::runFimo(peak_seqs,  convert_motifs(motif), meme_path = "/mnt/IM/conda/bin/")
+```
+
+```{r}
+sum(overlapsAny(peaks))
+```
+
+# Answer to question 1:
+
+Of the 40904 peaks, 17208 (42.06924%) contain the GATA1 motif. 
+
+
+
+
+# Answer to question 2:
+
+Of the 17208 GATA1 motif instances, 15949 (92.68364%) overlap with a peak. 
+
+```{r}
+ a <- overlapsAny(peaks, moi)
+ b <- subset(a, a[] == "TRUE")
+sum(b)
+
+```
+
+
+
